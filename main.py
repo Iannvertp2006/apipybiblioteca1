@@ -9,6 +9,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# -------------------------------------------------------------
+# Instanciación de los 4 objetos de la clase Editorial
+# -------------------------------------------------------------
 editorial1 = Editorial(idEd=1, nombre="Editorial Planeta", pais="España")
 editorial2 = Editorial(idEd=2, nombre="Fondo de Cultura Económica", pais="México")
 editorial3 = Editorial(idEd=3, nombre="Penguin Random House", pais="Reino Unido")
@@ -16,7 +19,9 @@ editorial4 = Editorial(idEd=4, nombre="Alianza Editorial", pais="España")
 
 editoriales_db = [editorial1, editorial2, editorial3, editorial4]
 
-
+# -------------------------------------------------------------
+# Instanciación de los 5 objetos de la clase Libro
+# -------------------------------------------------------------
 libro1 = Libro(
     ISBN="978-0307474728",
     titulo="Cien años de soledad",
@@ -56,7 +61,9 @@ libro5 = Libro(
 libros_db = [libro1, libro2, libro3, libro4, libro5]
 
 
-
+# -------------------------------------------------------------
+# Métodos GET principales (Requerimiento Funcional 2 y 3)
+# -------------------------------------------------------------
 
 @app.get("/", tags=["Inicio"])
 async def root():
@@ -80,17 +87,18 @@ async def obtener_libro(identificador: str):
     Consulta un libro por su ID numérico (1 a 5) o por su código ISBN.
     Lanza una excepción HTTP 404 si el recurso no es encontrado.
     """
-    
+    # 1. Búsqueda si se envió como número entero (1, 2, 3, 4, 5)
     if identificador.isdigit():
         indice = int(identificador)
         if 1 <= indice <= len(libros_db):
             return libros_db[indice - 1]
 
+    # 2. Búsqueda por ISBN
     for libro in libros_db:
         if libro.ISBN.lower() == identificador.strip().lower():
             return libro
 
-    
+    # 3. Manejo de excepción si no se encuentra
     raise HTTPException(
         status_code=404,
         detail="Libro no encontrado"
@@ -107,14 +115,16 @@ async def obtener_editorial(id_ed: int):
         if editorial.idEd == id_ed:
             return editorial
 
-    
+    # Manejo de excepción si no se encuentra
     raise HTTPException(
         status_code=404,
         detail="Editorial no encontrada"
     )
 
 
-----------------------------------------------------------
+# -------------------------------------------------------------
+# Métodos GET complementarios para listados completos
+# -------------------------------------------------------------
 
 @app.get("/libros", response_model=List[Libro], tags=["Libros"])
 async def listar_libros():
